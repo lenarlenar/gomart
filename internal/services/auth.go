@@ -13,19 +13,18 @@ type AuthService struct {
 	AuthStorage interfaces.AuthStorage
 }
 
-
 func (s *AuthService) Register(user models.UserRequest) error {
 
 	hashPass, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
-	if(err != nil) {
+	if err != nil {
 		return fmt.Errorf("ошибка при хеширований пароля: %w", err)
 	}
 
-	return s.AuthStorage.CreateUser(user.Username, string(hashPass))
+	return s.AuthStorage.CreateUser(user.Login, string(hashPass))
 }
 
-func (s *AuthService) Login(userRequest models.UserRequest) error{
-	user, err := s.AuthStorage.GetUser(userRequest.Username)
+func (s *AuthService) Login(userRequest models.UserRequest) error {
+	user, err := s.AuthStorage.GetUser(userRequest.Login)
 	if err != nil {
 		return err
 	}

@@ -15,8 +15,8 @@ var (
 )
 
 func (db *DataBase) CreateUser(name string, hashPass string) error {
-	_, err := db.DB.ExecContext(context.Background(), "INSERT INTO users (login, password_hash) VALUES ($1, $2)", name, hashPass)
-	if(err != nil) {
+	_, err := db.DB.ExecContext(context.Background(), "INSERT INTO users (login, hash) VALUES ($1, $2)", name, hashPass)
+	if err != nil {
 		var pqErr *pq.Error
 		if errors.As(err, &pqErr) && pqErr.Code == "23505" {
 			return models.ErrDuplicateUser
@@ -28,8 +28,8 @@ func (db *DataBase) CreateUser(name string, hashPass string) error {
 
 func (db *DataBase) GetUser(username string) (*models.User, error) {
 	user := new(models.User)
-	err := db.DB.QueryRowContext(context.Background(), "SELECT login, password_hash FROM users WHERE login = $1", username).Scan(&user.Login, &user.HashPass)
-	if(err != nil) {
+	err := db.DB.QueryRowContext(context.Background(), "SELECT id, login, hash FROM users WHERE login = $1", username).Scan(&user.ID, &user.Login, &user.HashPass)
+	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, models.ErrPasswordOrUsernameIsIncorrect
 		}
@@ -38,4 +38,3 @@ func (db *DataBase) GetUser(username string) (*models.User, error) {
 
 	return user, nil
 }
-

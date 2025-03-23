@@ -13,8 +13,8 @@ type JWTService struct {
 
 func (s *JWTService) Generate(subject string) (string, error) {
 	now := time.Now()
-	exp := now.Add(24 * time.Hour)
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims {
+	exp := now.Add(time.Hour * 24).Unix()
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": subject,
 		"iat": now,
 		"exp": exp,
@@ -22,7 +22,7 @@ func (s *JWTService) Generate(subject string) (string, error) {
 
 	signedToken, err := token.SignedString([]byte(s.SecretKey))
 
-	if(err != nil) {
+	if err != nil {
 		return "", fmt.Errorf("ошибка при генерации jwt: %w", err)
 	}
 

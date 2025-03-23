@@ -5,9 +5,9 @@ import (
 )
 
 const (
-	DefaultAddress        = ":8080"
+	DefaultAddress        = ":8081"
 	DefaultDBUri          = "host=localhost port=5432 user=gomart password=gomart dbname=gomart sslmode=disable"
-	DefaultAccrualAddress = ""
+	DefaultAccrualAddress = "http://localhost:8080"
 )
 
 type FlagsConfig struct {

@@ -7,7 +7,7 @@ import (
 
 type Config struct {
 	Address        string
-	DBUri          string
+	DSN            string
 	AccrualAddress string
 }
 
@@ -16,15 +16,15 @@ func Get() Config {
 	flagsConfig := flags.Parse()
 
 	result := Config{
-		Address: flagsConfig.Address,
-		DBUri: flagsConfig.DBUri,
+		Address:        flagsConfig.Address,
+		DSN:            flagsConfig.DBUri,
 		AccrualAddress: flagsConfig.AccrualAddress,
 	}
 
-	if(err != nil) {
+	if err != nil {
 		return result
-	} 
-	
+	}
+
 	if envConfig.AccrualAddress != "" {
 		result.AccrualAddress = envConfig.AccrualAddress
 	} else {
@@ -38,11 +38,10 @@ func Get() Config {
 	}
 
 	if envConfig.DBUri != "" {
-		result.DBUri = envConfig.DBUri
+		result.DSN = envConfig.DBUri
 	} else {
-		result.DBUri = flagsConfig.DBUri
+		result.DSN = flagsConfig.DBUri
 	}
-
 
 	return result
 }

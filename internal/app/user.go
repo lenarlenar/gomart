@@ -18,14 +18,14 @@ func (app *App) Register(c *gin.Context) {
 		return
 	}
 
-	if userRequest.Password == "" || userRequest.Username == "" {
+	if userRequest.Password == "" || userRequest.Login == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "поля username и password должны быть заполнены",
 		})
 		return
 	}
 
-	token, err := app.JWTService.Generate(userRequest.Username)
+	token, err := app.JWTService.Generate(userRequest.Login)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -63,7 +63,7 @@ func (app *App) Login(c *gin.Context) {
 		return
 	}
 
-	if userRequest.Password == "" || userRequest.Username == "" {
+	if userRequest.Password == "" || userRequest.Login == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "поля username и password должны быть заполнены",
 		})
@@ -83,7 +83,7 @@ func (app *App) Login(c *gin.Context) {
 		return
 	}
 
-	token, err := app.JWTService.Generate(userRequest.Username)
+	token, err := app.JWTService.Generate(userRequest.Login)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{

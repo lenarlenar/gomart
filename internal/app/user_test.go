@@ -15,23 +15,23 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-const(
-	POST = "POST"
+const (
+	POST        = "POST"
 	registerURL = "/api/user/register"
-	loginURL = "/api/user/login"
+	loginURL    = "/api/user/login"
 )
 
 func TestRegister(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()  
+	defer ctrl.Finish()
 
 	authService := mocks.NewMockAuthService(ctrl)
 	authStorage := mocks.NewMockAuthStorage(ctrl)
 	jwtService := mocks.NewMockJWTService(ctrl)
-	app := App {
+	app := App{
 		AuthStorage: authStorage,
 		AuthService: authService,
-		JWTService: jwtService,
+		JWTService:  jwtService,
 	}
 
 	testServer := httptest.NewServer(
@@ -39,62 +39,62 @@ func TestRegister(t *testing.T) {
 	)
 	defer testServer.Close()
 
-	fullRegisterUrl := testServer.URL + registerURL
+	fullRegisterURL := testServer.URL + registerURL
 	testCases := []struct {
-		testName        string
-		body            func() io.Reader
-		prepare         func()
-		expectedCode    int
+		testName     string
+		body         func() io.Reader
+		prepare      func()
+		expectedCode int
 	}{
 		{
-			testName:        "нет тела запроса",
-			expectedCode:    http.StatusBadRequest,
+			testName:     "нет тела запроса",
+			expectedCode: http.StatusBadRequest,
 		},
 		{
-			testName:   "нет логина",
+			testName: "нет логина",
 			body: func() io.Reader {
 				userRequest := models.UserRequest{Password: "123"}
 				data, _ := json.Marshal(userRequest)
 				return bytes.NewBuffer(data)
 			},
-			expectedCode:    http.StatusBadRequest,
+			expectedCode: http.StatusBadRequest,
 		},
 		{
-			testName:   "нет пароля",
+			testName: "нет пароля",
 			body: func() io.Reader {
-				userRequest := models.UserRequest{Username: "user"}
+				userRequest := models.UserRequest{Login: "user"}
 				data, _ := json.Marshal(userRequest)
 				return bytes.NewBuffer(data)
 			},
-			expectedCode:    http.StatusBadRequest,
+			expectedCode: http.StatusBadRequest,
 		},
 		{
-			testName:   "пользователь уже зарегистрирован",
+			testName: "пользователь уже зарегистрирован",
 			prepare: func() {
-				userRequest := models.UserRequest{Username: "user", Password: "123"}
-				jwtService.EXPECT().Generate(userRequest.Username).Return("token", nil)
+				userRequest := models.UserRequest{Login: "user", Password: "123"}
+				jwtService.EXPECT().Generate(userRequest.Login).Return("token", nil)
 				authService.EXPECT().Register(userRequest).Return(models.ErrDuplicateUser)
 			},
 			body: func() io.Reader {
-				userRequest := models.UserRequest{Username: "user", Password: "123"}
+				userRequest := models.UserRequest{Login: "user", Password: "123"}
 				data, _ := json.Marshal(userRequest)
 				return bytes.NewBuffer(data)
 			},
-			expectedCode:    http.StatusConflict,
+			expectedCode: http.StatusConflict,
 		},
 		{
-			testName:   "успешная регистрация пользователя",
+			testName: "успешная регистрация пользователя",
 			prepare: func() {
-				userRequest := models.UserRequest{Username: "user", Password: "123"}
-				jwtService.EXPECT().Generate(userRequest.Username).Return("token", nil)
+				userRequest := models.UserRequest{Login: "user", Password: "123"}
+				jwtService.EXPECT().Generate(userRequest.Login).Return("token", nil)
 				authService.EXPECT().Register(userRequest).Return(nil)
 			},
 			body: func() io.Reader {
-				userRequest := models.UserRequest{Username: "user", Password: "123"}
+				userRequest := models.UserRequest{Login: "user", Password: "123"}
 				data, _ := json.Marshal(userRequest)
 				return bytes.NewBuffer(data)
 			},
-			expectedCode:    http.StatusOK,
+			expectedCode: http.StatusOK,
 		},
 	}
 
@@ -109,7 +109,7 @@ func TestRegister(t *testing.T) {
 				tc.prepare()
 			}
 
-			req, err := http.NewRequest(POST, fullRegisterUrl, body)
+			req, err := http.NewRequest(POST, fullRegisterURL, body)
 			require.NoError(t, err)
 			req.Header.Set("Content-Type", "application/json")
 
@@ -123,15 +123,15 @@ func TestRegister(t *testing.T) {
 
 func TestLogin(t *testing.T) {
 	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()  
+	defer ctrl.Finish()
 
 	authService := mocks.NewMockAuthService(ctrl)
 	authStorage := mocks.NewMockAuthStorage(ctrl)
 	jwtService := mocks.NewMockJWTService(ctrl)
-	app := App {
+	app := App{
 		AuthStorage: authStorage,
 		AuthService: authService,
-		JWTService: jwtService,
+		JWTService:  jwtService,
 	}
 
 	testServer := httptest.NewServer(
@@ -139,61 +139,61 @@ func TestLogin(t *testing.T) {
 	)
 	defer testServer.Close()
 
-	fullLoginUrl := testServer.URL + loginURL
+	fullLoginURL := testServer.URL + loginURL
 	testCases := []struct {
-		testName        string
-		body            func() io.Reader
-		prepare         func()
-		expectedCode    int
+		testName     string
+		body         func() io.Reader
+		prepare      func()
+		expectedCode int
 	}{
 		{
-			testName:        "нет тела запроса",
-			expectedCode:    http.StatusBadRequest,
+			testName:     "нет тела запроса",
+			expectedCode: http.StatusBadRequest,
 		},
 		{
-			testName:   "нет логина",
+			testName: "нет логина",
 			body: func() io.Reader {
 				userRequest := models.UserRequest{Password: "123"}
 				data, _ := json.Marshal(userRequest)
 				return bytes.NewBuffer(data)
 			},
-			expectedCode:    http.StatusBadRequest,
+			expectedCode: http.StatusBadRequest,
 		},
 		{
-			testName:   "нет пароля",
+			testName: "нет пароля",
 			body: func() io.Reader {
-				userRequest := models.UserRequest{Username: "user"}
+				userRequest := models.UserRequest{Login: "user"}
 				data, _ := json.Marshal(userRequest)
 				return bytes.NewBuffer(data)
 			},
-			expectedCode:    http.StatusBadRequest,
+			expectedCode: http.StatusBadRequest,
 		},
 		{
-			testName:   "неверный логин или пароль",
+			testName: "неверный логин или пароль",
 			prepare: func() {
-				userRequest := models.UserRequest{Username: "user", Password: "123"}
+				userRequest := models.UserRequest{Login: "user", Password: "123"}
 				authService.EXPECT().Login(userRequest).Return(models.ErrPasswordOrUsernameIsIncorrect)
 			},
 			body: func() io.Reader {
-				userRequest := models.UserRequest{Username: "user", Password: "123"}
+				userRequest := models.UserRequest{Login: "user", Password: "123"}
 				data, _ := json.Marshal(userRequest)
 				return bytes.NewBuffer(data)
 			},
-			expectedCode:    http.StatusUnauthorized,
+			expectedCode: http.StatusUnauthorized,
 		},
 		{
-			testName:   "успешный login",
+			testName: "успешный login",
 			prepare: func() {
-				userRequest := models.UserRequest{Username: "user", Password: "123"}
-				jwtService.EXPECT().Generate(userRequest.Username).Return("token", nil)
+				userRequest := models.UserRequest{Login: "user", Password: "123"}
+				jwtService.EXPECT().Generate(userRequest.Login).Return("token", nil)
 				authService.EXPECT().Login(userRequest).Return(nil)
 			},
 			body: func() io.Reader {
-				userRequest := models.UserRequest{Username: "user", Password: "123"}
+				userRequest := models.UserRequest{Login: "user", Password: "123"}
 				data, _ := json.Marshal(userRequest)
 				return bytes.NewBuffer(data)
 			},
-			expectedCode:    http.StatusOK,
+			expectedCode: http.StatusOK,
 		},
 	}
 
@@ -208,7 +208,7 @@ func TestLogin(t *testing.T) {
 				tc.prepare()
 			}
 
-			req, err := http.NewRequest(POST, fullLoginUrl, body)
+			req, err := http.NewRequest(POST, fullLoginURL, body)
 			require.NoError(t, err)
 			req.Header.Set("Content-Type", "application/json")
 
